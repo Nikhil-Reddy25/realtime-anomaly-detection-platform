@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package anomalydetection;
+
+option java_multiple_files = true;
+option java_package = "com.anomaly.grpc";
+option java_outer_classname = "AnomalyDetectionProto";
+
+// Service definition for anomaly detection inference
+service AnomalyDetectionService {
+  // Single event detection
+  rpc DetectAnomaly (AnomalyRequest) returns (AnomalyResponse);
+  
+  // Batch detection for multiple events
+  rpc DetectAnomalyBatch (stream AnomalyRequest) returns (stream AnomalyResponse);
+  
+  // Health check
+  rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+// Request message for anomaly detection
+message AnomalyRequest {
+  string event_id = 1;
+  int64 timestamp = 2;
+  string user_id = 3;
+  map<string, double> features = 4;
+  string model_version = 5;
+}
+
+// Response message for anomaly detection
+message AnomalyResponse {
+  string event_id = 1;
+  bool is_anomaly = 2;
+  double anomaly_score = 3;
+  double confidence = 4;
+  string model_version = 5;
+  int64 inference_time_ms = 6;
+  map<string, double> feature_importance = 7;
+}
+
+// Health check request
+message HealthCheckRequest {
+  string service = 1;
+}
+
+// Health check response
+message HealthCheckResponse {
+  enum ServingStatus {
+    UNKNOWN = 0;
+    SERVING = 1;
+    NOT_SERVING = 2;
+  }
+  ServingStatus status = 1;
+  string message = 2;
+}
